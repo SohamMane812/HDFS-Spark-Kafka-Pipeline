@@ -167,7 +167,7 @@ Saved batch to /nyc_taxi/streaming/batch_42
 
 ## Implementation Challenges and Solutions
 
-1. **Challenge**: Processing the large 12GB+ dataset efficiently on a single VM
+1. **Challenge**: Processing the large 22GB+ dataset efficiently on a single VM
    **Solution**: Used Spark's distributed processing capabilities and converted data to Parquet format for faster analytics
 
 2. **Challenge**: Simulating real-time data streams
