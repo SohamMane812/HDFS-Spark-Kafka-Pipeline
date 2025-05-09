@@ -1,4 +1,10 @@
 # NYC Taxi Stream Analytics
+![Kafka](https://img.shields.io/badge/Streaming-Kafka-231F20)
+![HDFS](https://img.shields.io/badge/Storage-HDFS-FFCA28)
+![Hadoop](https://img.shields.io/badge/Big%20Data-Hadoop-66BB6A)
+![Spark](https://img.shields.io/badge/Compute-Spark-F44336)
+![Dataset](https://img.shields.io/badge/Data-Dataset-607D8B)
+![GCP VM](https://img.shields.io/badge/Deployment-GCP%20VM-4285F4)
 
 A comprehensive big data pipeline for processing and analyzing NYC Yellow Taxi trip data using the Hadoop ecosystem deployed on a Google Cloud Platform (GCP) virtual machine.
 
