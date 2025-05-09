@@ -1,0 +1,65 @@
+val taxiDF = spark.read.option("header", "true").option("inferSchema", "true").csv("hdfs://localhost:9000/nyc_taxi/raw/cleaned_data.csv")
+
+taxiDF.createOrReplaceTempView("yellow_trips")
+
+taxiDF.printSchema()
+
+spark.sql("SELECT COUNT(*) as total_trips FROM yellow_trips").show()
+
+spark.sql("""
+        SELECT 
+          COUNT(*) as total_trips,
+          ROUND(AVG(trip_distance), 2) as avg_distance_miles,
+          ROUND(AVG(fare_amount), 2) as avg_fare_dollars,
+          ROUND(AVG(tip_amount), 2) as avg_tip_dollars,
+          ROUND(SUM(total_amount), 2) as total_revenue_dollars
+        FROM yellow_trips
+      """).show()
+
+
+spark.sql("""
+        SELECT 
+          payment_type,
+          CASE payment_type
+            WHEN 1 THEN 'Credit card'
+            WHEN 2 THEN 'Cash'
+            WHEN 3 THEN 'No charge'
+            WHEN 4 THEN 'Dispute'
+            WHEN 5 THEN 'Unknown'
+            WHEN 6 THEN 'Voided trip'
+            ELSE 'Other'
+          END as payment_description,
+          COUNT(*) as trip_count,
+          ROUND(AVG(tip_amount), 2) as avg_tip
+        FROM yellow_trips
+        GROUP BY payment_type
+        ORDER BY payment_type
+      """).show()
+
+spark.sql("""
+        SELECT 
+          CASE
+            WHEN trip_distance < 1 THEN 'Less than 1 mile'
+            WHEN trip_distance BETWEEN 1 AND 2 THEN '1-2 miles'
+            WHEN trip_distance BETWEEN 2 AND 5 THEN '2-5 miles'
+            WHEN trip_distance BETWEEN 5 AND 10 THEN '5-10 miles'
+            ELSE 'More than 10 miles'
+          END as distance_category,
+          COUNT(*) as trip_count,
+          ROUND(AVG(fare_amount), 2) as avg_fare,
+          ROUND(AVG(tip_amount), 2) as avg_tip
+        FROM yellow_trips
+        GROUP BY CASE
+            WHEN trip_distance < 1 THEN 'Less than 1 mile'
+            WHEN trip_distance BETWEEN 1 AND 2 THEN '1-2 miles'
+            WHEN trip_distance BETWEEN 2 AND 5 THEN '2-5 miles'
+            WHEN trip_distance BETWEEN 5 AND 10 THEN '5-10 miles'
+            ELSE 'More than 10 miles'
+          END
+        ORDER BY distance_category
+      """).show()
+
+-- Save the file in Parquet Format
+taxiDF.write.mode("overwrite").partitionBy("VendorID").parquet("hdfs://localhost:9000/nyc_taxi/parquet/")
+val parquetDF = spark.read.parquet("hdfs://localhost:9000/nyc_taxi/parquet/")
+parquetDF.createOrReplaceTempView("yellow_trips_parquet")
